@@ -11,14 +11,21 @@
  */
 
 #include "image.h"
+#include <iostream>
+using namespace std;
+
 
 int main()
 {
     Image* myImage = new Image();
     myImage->readFromFile("Images/in_01.png");
 
-    myImage->naiveCompression();
-    myImage->writeToFile("Images/naiveCompression.png");
+    int x;
+    int y;
+    cin >> x;
+    cin >> y;
+    myImage->fixedRectangleCompression(x,y);
+    myImage->writeToFile("Images/fixedRectangleCompression.png");
 
     delete myImage;
 

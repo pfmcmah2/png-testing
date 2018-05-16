@@ -1,72 +1,170 @@
 #include "image.h"
 
-
-void Image::naiveCompression()
+void Image::fixedRectangleCompression(int x, int y)
 {
   unsigned long w = 0, h = 0;
   int red = 0;
-  int blue = 0;
   int green = 0;
+  int blue = 0;
+
+  int num = x * y;
+
+  // compress pixels, 4 pixel vertical blocks
+  // ex: [100][92]  ->  [98][98]
+  //     [104][96]      [98][98]
+  // 1/4 size
+  for(h = 0; h < this->height(); h += y)
+  {
+    for(w = 0; w < this->width(); w += x)
+    {
+      red = 0;
+      green = 0;
+      blue = 0;
+      for(int i = 0; i < x; i++)
+      {
+        for(int j = 0; j < y; j++)
+        {
+          red += (int)this->operator()(w + i, h + j) -> red;
+          green += (int)this->operator()(w + i, h + j) -> green;
+          blue += (int)this->operator()(w + i, h + j) -> blue;
+        }
+      }
+
+      red /= num;
+      green /= num;
+      blue /= num;
+
+      for(int i = 0; i < x; i++)
+      {
+        for(int j = 0; j < y; j++)
+        {
+          this->operator()(w + i, h + j) -> red = (uint8_t)red;
+          this->operator()(w + i, h + j) -> green = (uint8_t)green;
+          this->operator()(w + i, h + j) -> blue = (uint8_t)blue;
+        }
+
+      }
+
+    }
+  }
+}
+void Image::naiveCompression(int res)
+{
+  unsigned long w = 0, h = 0;
+  int red = 0;
+  int green = 0;
+  int blue = 0;
+
+  int num = res*res;
+
+  // compress pixels, 4 pixel vertical blocks
+  // ex: [100][92]  ->  [98][98]
+  //     [104][96]      [98][98]
+  // 1/4 size
+  for(h = 0; h < this->height(); h += res)
+  {
+    for(w = 0; w < this->width(); w += res)
+    {
+      red = 0;
+      green = 0;
+      blue = 0;
+      for(int i = 0; i < res; i++)
+      {
+        for(int j = 0; j < res; j++)
+        {
+          red += (int)this->operator()(w + i, h + j) -> red;
+          green += (int)this->operator()(w + i, h + j) -> green;
+          blue += (int)this->operator()(w + i, h + j) -> blue;
+        }
+      }
+
+      red /= num;
+      green /= num;
+      blue /= num;
+
+      for(int i = 0; i < res; i++)
+      {
+        for(int j = 0; j < res; j++)
+        {
+          this->operator()(w + i, h + j) -> red = (uint8_t)red;
+          this->operator()(w + i, h + j) -> green = (uint8_t)green;
+          this->operator()(w + i, h + j) -> blue = (uint8_t)blue;
+        }
+
+      }
+
+    }
+  }
+}
+
+
+
+void Image::segmentCompression(int res)
+{
+  unsigned long w = 0, h = 0;
+  int red = 0;
+  int green = 0;
+  int blue = 0;
+
+  int len = res*res;
 
   // compress red, 4 pixel horizontal blocks
   // ex: [100][104][92][96] -> [98][98][98][98]
   // 1/4 size
   for(h = 0; h < this->height(); h++)
   {
-    for(w = 0; w < this->width(); w += 4)
+    for(w = 0; w < this->width(); w += len)
     {
       red = 0;
-      for(int i = 0; i < 4; i++)
+      for(int i = 0; i < len; i++)
         red += (int)this->operator()(w + i, h) -> red;
-      red /= 4;
+      red /= len;
 
-      for(int i = 0; i < 4; i++)
+      for(int i = 0; i < len; i++)
         this->operator()(w + i, h) -> red = (uint8_t)red;
     }
   }
 
-  // compress blue, 4 pixel vertical blocks
+  // compress green, 4 pixel vertical blocks
   // ex: [100]     [98]
   //     [104]     [98]
   //     [92]  ->  [98]
   //     [96]      [98]
   // 1/4 size
-  for(h = 0; h < this->height(); h += 4)
+  for(h = 0; h < this->height(); h += len)
   {
     for(w = 0; w < this->width(); w++)
     {
-      blue = 0;
-      for(int i = 0; i < 4; i++)
-        blue += (int)this->operator()(w, h + i) -> blue;
-      blue /= 4;
+      green = 0;
+      for(int i = 0; i < len; i++)
+        green += (int)this->operator()(w, h + i) -> green;
+      green /= len;
 
-      for(int i = 0; i < 4; i++)
-        this->operator()(w, h + i) -> blue = (uint8_t)blue;
+      for(int i = 0; i < len; i++)
+        this->operator()(w, h + i) -> green = (uint8_t)green;
     }
   }
 
   // compress blue, 4 pixel vertical blocks
-  // ex: [100]     [98]
-  //     [104]     [98]
-  //     [92]  ->  [98]
-  //     [96]      [98]
+  // ex: [100][92]  ->  [98][98]
+  //     [104][96]      [98][98]
   // 1/4 size
-  for(h = 0; h < this->height(); h += 2)
+  for(h = 0; h < this->height(); h += res)
   {
-    for(w = 0; w < this->width(); w += 2)
+    for(w = 0; w < this->width(); w += res)
     {
-      green = 0;
-      for(int i = 0; i < 2; i++)
+      blue = 0;
+      for(int i = 0; i < res; i++)
       {
-        for(int j = 0; j < 2; j++)
-          green += (int)this->operator()(w + i, h + j) -> green;
+        for(int j = 0; j < res; j++)
+          blue += (int)this->operator()(w + i, h + j) -> blue;
       }
 
-      green /= 4;
-      for(int i = 0; i < 2; i++)
+      blue /= len;
+      for(int i = 0; i < res; i++)
       {
-        for(int j = 0; j < 2; j++)
-          this->operator()(w + i, h + j) -> green = (uint8_t)green;
+        for(int j = 0; j < res; j++)
+          this->operator()(w + i, h + j) -> blue = (uint8_t)blue;
       }
 
     }

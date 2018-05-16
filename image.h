@@ -9,7 +9,9 @@ using std::uint8_t;
 class Image : public PNG
 {
   public:
-    void naiveCompression();
+    void naiveCompression(int res);
+    void segmentCompression(int res);
+    void fixedRectangleCompression(int x, int y);
     void flipleft();
     void adjustbrightness (int r, int g, int b);
     void invertcolors();
