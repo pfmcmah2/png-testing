@@ -1,5 +1,61 @@
 #include "image.h"
 
+// compress each row independently down to x groups of pixels
+// to minimize total loss
+void Image::independentRowCompression(int x)
+{
+  unsigned long w = 0, h = 0;
+  int len = this->width();
+  int red;
+  int green;
+  int blue;
+  int currLoss;
+
+  // dynamically allocate total loss array
+  int** totalLoss = (int**)malloc(len*sizeof(int*));
+  for(int i = 0; i < len; i++)
+  {
+    totalLoss[i] = (int*)malloc(len*sizeof(int));
+  }
+
+  // main loop
+  for(h = 0; h < this->height(); h++)
+  {
+    // initialize totalLoss
+    for(int i = 0; i < len; i++)
+    {
+      for(int j = 0; j <= i; j++)
+      {
+        // compute average
+        red = 0;
+        green = 0;
+        blue = 0;
+        currLoss = 0;
+
+        for(int k = j; k <= i; k++)
+        {
+          red += (int)this->operator()(k, h) -> red;
+          green += (int)this->operator()(k, h) -> green;
+          blue += (int)this->operator()(k, h) -> blue;
+        }
+        red /= (i-j+1);
+        green /= (i-j+1);
+        blue /= (i-j+1);
+        // compute loss
+        for(int k = j; k <= i; k++)
+        {
+          currLoss += abs(red - (int)this->operator()(k, h) -> red);
+          currLoss += abs(green - (int)this->operator()(k, h) -> green);
+          currLoss += abs(blue - (int)this->operator()(k, h) -> blue);
+        }
+        totalLoss[j][i] = currLoss
+      }
+    }
+
+    
+  }
+
+}
 void Image::fixedRectangleCompression(int x, int y)
 {
   unsigned long w = 0, h = 0;
