@@ -10,12 +10,20 @@ void Image::independentRowCompression(int x)
   int green;
   int blue;
   int currLoss;
+  int min;
+  int temp;
 
   // dynamically allocate total loss array
   int** totalLoss = (int**)malloc(len*sizeof(int*));
   for(int i = 0; i < len; i++)
   {
     totalLoss[i] = (int*)malloc(len*sizeof(int));
+  }
+  // dp array
+  int** minDist = (int**)malloc((x+1)*sizeof(int*));
+  for(int i = 0; i <= x; i++)
+  {
+    minDist[i] = (int*)malloc((len+1)*sizeof(int));
   }
 
   // main loop
@@ -51,8 +59,31 @@ void Image::independentRowCompression(int x)
         totalLoss[j][i] = currLoss
       }
     }
+    // initialize dp array
+    for(int i = 0; i < len; i++)
+    {
+      minDist[0][i] = 10000000;
+    }
+    for(int i = 0; i <= x; i++)
+    {
+      minDist[i][len] = 0;
+    }
 
-    
+    for(int i = len - 1; i >= 0; i--)
+    {
+      for(int k = 1; k <= x; k++)
+      {
+        min = 10000000;
+        for(int j = i; j < len; j++)
+        {
+          temp = totalLoss[i][j] + minDist[k-1][j+1];
+          if(temp < min)
+            min = temp;
+        }
+        minDist[k][j] = min;
+        // store i values where the array is split, and avg color
+      }
+    }
   }
 
 }
