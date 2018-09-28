@@ -56,7 +56,7 @@ void Image::independentRowCompression(int x)
           currLoss += abs(green - (int)this->operator()(k, h) -> green);
           currLoss += abs(blue - (int)this->operator()(k, h) -> blue);
         }
-        totalLoss[j][i] = currLoss
+        totalLoss[j][i] = currLoss;
       }
     }
     // initialize dp array
@@ -80,7 +80,7 @@ void Image::independentRowCompression(int x)
           if(temp < min)
             min = temp;
         }
-        minDist[k][j] = min;
+        minDist[k][i] = min;
         // store i values where the array is split, and avg color
       }
     }
